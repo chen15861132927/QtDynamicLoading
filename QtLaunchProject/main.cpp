@@ -4,10 +4,21 @@
 #include <QMetaObject>
 #include <QMetaClassInfo>
 #include "../QtInterface/TestInterface.h"
+#include <iostream>
+#include <QSharedPointer>
+#include <QScopedPointer>
+#include <QPluginLoader>
+
+
+using namespace std;
+
 int main(int argc, char* argv[])
 {
 	QCoreApplication a(argc, argv);
-	QLibrary library("QtImplement.dll");
+	QString pathName = "QtImplementB.dll";
+	//QLibrary library("QtImplement.dll");
+	/*QLibrary library(pathName);
+
 	if (library.load())
 	{
 		typedef TestInterface* (*getInstanceFun)();
@@ -32,12 +43,41 @@ int main(int argc, char* argv[])
 					qDebug() << metaClassInfo.name();
 				}
 
-				TestInterface* newIns = static_cast<TestInterface*>( imp->metaObject()->newInstance());
+				QScopedPointer<TestInterface> newIns;
+				newIns.reset(static_cast<TestInterface*>(imp->metaObject()->newInstance()));
 				qDebug() << newIns->getValues();
+				char input;
+				cin >> input;
+				while (input != 'q')
+				{
+					newIns.reset(static_cast<TestInterface*>(imp->metaObject()->newInstance()));
+					qDebug() << newIns->getValues();
+					cin >> input;
+
+				}
+
+				delete imp;
 			}
 		}
 
-		library.unload();
+		qDebug()<<library.unload();
 	}
+	*/
+
+	QPluginLoader pluginLoader(pathName);
+	pluginLoader.load();
+	QScopedPointer<TestInterface> newIns;
+	newIns.reset(dynamic_cast<TestInterface*>(pluginLoader.instance()-> metaObject()->newInstance()));
+	qDebug() << newIns->getValues();
+	char input;
+	cin >> input;
+	while (input != 'q')
+	{
+		newIns.reset(dynamic_cast<TestInterface*>(newIns->metaObject()->newInstance()));
+		qDebug() << newIns->getValues();
+		cin >> input;
+	}
+	newIns.take();
+	pluginLoader.unload();
 	return a.exec();
 }

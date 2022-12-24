@@ -66,9 +66,10 @@ int main(int argc, char* argv[])
 
 	QPluginLoader pluginLoader(pathName);
 	pluginLoader.load();
-	QScopedPointer<TestInterface> newIns;
-	newIns.reset(dynamic_cast<TestInterface*>(pluginLoader.instance()-> metaObject()->newInstance()));
-	qDebug() << newIns->getValues();
+	auto first = pluginLoader.instance();
+	shared_ptr<TestInterface> newIns;
+	newIns.reset(dynamic_cast<TestInterface*>(first-> metaObject()->newInstance()));
+	//qDebug() << newIns->getValues();
 	char input;
 	cin >> input;
 	while (input != 'q')
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
 		qDebug() << newIns->getValues();
 		cin >> input;
 	}
-	newIns.take();
+	newIns.reset();
 	pluginLoader.unload();
 	return a.exec();
 }

@@ -18,6 +18,6 @@ int QtImplementB::getValues()
 {
 	return flag2 * flag2;
 }
-TestInterface* getInstance() {
-	return new QtImplementB();
-}
+//TestInterface* getInstance() {
+//	return new QtImplementB();
+//}
